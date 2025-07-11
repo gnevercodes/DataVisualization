@@ -1,0 +1,16 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f4f4f4;
+}
+
+h2 {
+  text-align: center;
+}
+
+#chart {
+  display: block;
+  margin: auto;
+  background: white;
+  border: 1px solid #ccc;
+}
