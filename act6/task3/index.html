@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Scatter Plot for Auto MPG Dataset</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      h1 {
+        text-align: center;
+        color: #d84315;
+      }
+      svg {
+        display: block;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      <u><i>Scatter Plot for Auto MPG Dataset</i></u>
+    </h1>
+
+    <script>
+      const {
+        select,
+        scaleLinear,
+        scaleOrdinal,
+        extent,
+        axisLeft,
+        axisBottom,
+        schemeCategory10,
+      } = d3;
+
+      const csvUrl =
+        'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/mpg.csv';
+
+      const margin = {
+        top: 30,
+        right: 50,
+        bottom: 70,
+        left: 90,
+      };
+      const width =
+        window.innerWidth - margin.left - margin.right;
+      const height = 500 - margin.top - margin.bottom;
+
+      const svg = select('body')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr(
+          'transform',
+          `translate(${margin.left},${margin.top})`,
+        );
+
+      d3.csv(csvUrl, (d) => ({
+        mpg: +d.mpg,
+        cylinders: +d.cylinders,
+        displacement: +d.displacement,
+        horsepower:
+          d.horsepower === 'NA' ? NaN : +d.horsepower,
+        weight: +d.weight,
+        acceleration: +d.acceleration,
+        modelYear: +d.model_year,
+        origin: +d.origin,
+        carName: d.name,
+      })).then((data) => {
+        data = data.filter((d) => !isNaN(d.horsepower));
+
+        // Scales
+        const x = scaleLinear()
+          .domain(extent(data, (d) => d.horsepower))
+          .range([0, width])
+          .nice();
+
+        const y = scaleLinear()
+          .domain(extent(data, (d) => d.mpg))
+          .range([height, 0])
+          .nice();
+
+        // Color scale for cylinders
+        const color = scaleOrdinal()
+          .domain([
+            ...new Set(data.map((d) => d.cylinders)),
+          ])
+          .range(schemeCategory10);
+
+        // Axes
+        svg
+          .append('g')
+          .attr('transform', `translate(0,${height})`)
+          .call(axisBottom(x));
+
+        svg.append('g').call(axisLeft(y));
+
+        // Labels
+        svg
+          .append('text')
+          .attr('x', width / 2)
+          .attr('y', height + 50)
+          .attr('text-anchor', 'middle')
+          .text('Horsepower');
+
+        svg
+          .append('text')
+          .attr('x', -height / 2)
+          .attr('y', -60)
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'rotate(-90)')
+          .text('Miles Per Gallon (MPG)');
+
+        // Circles
+        svg
+          .selectAll('circle')
+          .data(data)
+          .enter()
+          .append('circle')
+          .attr('cx', (d) => x(d.horsepower))
+          .attr('cy', (d) => y(d.mpg))
+          .attr('r', 4)
+          .attr('fill', (d) => color(d.cylinders))
+          .attr('opacity', 0.8);
+
+        // Optional: Add legend (if you'd like it, let me know!)
+      });
+    </script>
+  </body>
+</html>
