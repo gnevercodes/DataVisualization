@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Activity 7 - Population Bar Chart</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Poppins&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Poppins", serif;
+        padding: 20px;
+      }
+      .tick line {
+        stroke: #c0c0bb;
+        stroke-opacity: 0.3;
+      }
+      .tick text {
+        fill: #635f5d;
+      }
+      .mark {
+        fill: #90ee90;
+      }
+      .axis-label {
+        font-size: 1.5em;
+        fill: #635f5d;
+      }
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      #chart {
+        overflow: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Population by Country (2020)</h1>
+      <div id="chart"></div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+      // Data - hardcoded to avoid loading issues
+      const populationData = [
+        { country: "China", population: 1439323776 },
+        { country: "India", population: 1380004385 },
+        {
+          country: "United States of America",
+          population: 331002651,
+        },
+        { country: "Indonesia", population: 273523615 },
+        { country: "Pakistan", population: 220892340 },
+        { country: "Brazil", population: 212559417 },
+        { country: "Nigeria", population: 206139589 },
+        { country: "Bangladesh", population: 164689383 },
+        {
+          country: "Russian Federation",
+          population: 145934462,
+        },
+        { country: "Mexico", population: 128932753 },
+        { country: "Japan", population: 126476461 },
+        { country: "Ethiopia", population: 114963588 },
+        { country: "Philippines", population: 109581078 },
+        { country: "Egypt", population: 102334404 },
+        { country: "Viet Nam", population: 97338579 },
+        {
+          country: "Democratic Republic of the Congo",
+          population: 89561403,
+        },
+        { country: "Turkey", population: 84339067 },
+        {
+          country: "Iran (Islamic Republic of)",
+          population: 83992949,
+        },
+        { country: "Germany", population: 83783942 },
+        { country: "Thailand", population: 69799978 },
+        { country: "United Kingdom", population: 67886011 },
+        { country: "France", population: 65273511 },
+        { country: "Italy", population: 60461826 },
+        {
+          country: "United Republic of Tanzania",
+          population: 59734218,
+        },
+        { country: "South Africa", population: 59308690 },
+        { country: "Myanmar", population: 54409800 },
+        { country: "Kenya", population: 53771296 },
+        {
+          country: "Republic of Korea",
+          population: 51269185,
+        },
+        { country: "Colombia", population: 50882891 },
+        { country: "Spain", population: 46754778 },
+      ];
+
+      // Set up the chart
+      const width = 960;
+      const height = 600;
+      const margin = {
+        top: 20,
+        right: 30,
+        bottom: 65,
+        left: 220,
+      };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      // Create SVG
+      const svg = d3
+        .select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("style", "max-width: 100%; height: auto;");
+
+      const g = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      // Add groups for axes
+      const xAxisG = g
+        .append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${innerHeight})`);
+
+      const yAxisG = g.append("g").attr("class", "y-axis");
+
+      // X-axis label
+      xAxisG
+        .append("text")
+        .attr("class", "axis-label")
+        .attr("x", innerWidth / 2)
+        .attr("y", 50)
+        .attr("fill", "#635F5D")
+        .text("POPULATION-2020");
+
+      // Create scales
+      const xScale = d3
+        .scaleLinear()
+        .domain([0, d3.max(populationData, (d) => d.population)])
+        .range([0, innerWidth]);
+
+      const yScale = d3
+        .scaleBand()
+        .domain(populationData.map((d) => d.country))
+        .range([0, innerHeight])
+        .padding(0.1);
+
+      // Format for x-axis ticks
+      const siFormat = d3.format(".2s");
+      const xAxisTickFormat = (tickValue) =>
+        siFormat(tickValue).replace("G", "B");
+
+      // Create axes
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickFormat(xAxisTickFormat)
+        .tickSize(-innerHeight);
+
+      const yAxis = d3.axisLeft(yScale);
+
+      // Render axes
+      xAxisG.call(xAxis);
+      yAxisG.call(yAxis);
+
+      // Render bars
+      g.selectAll("rect")
+        .data(populationData)
+        .enter()
+        .append("rect")
+        .attr("class", "mark")
+        .attr("x", 0)
+        .attr("y", (d) => yScale(d.country))
+        .attr("width", (d) => xScale(d.population))
+        .attr("height", yScale.bandwidth());
+    </script>
+  </body>
+</html>
